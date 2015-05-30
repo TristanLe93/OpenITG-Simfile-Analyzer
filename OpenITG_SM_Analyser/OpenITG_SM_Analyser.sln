@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C# Express 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenITG_SM_Analyser", "OpenITG_SM_Analyser\OpenITG_SM_Analyser.csproj", "{133DF9BB-0D29-48BE-BF34-9BA9B3C584EC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{133DF9BB-0D29-48BE-BF34-9BA9B3C584EC}.Debug|x86.ActiveCfg = Debug|x86
+		{133DF9BB-0D29-48BE-BF34-9BA9B3C584EC}.Debug|x86.Build.0 = Debug|x86
+		{133DF9BB-0D29-48BE-BF34-9BA9B3C584EC}.Release|x86.ActiveCfg = Release|x86
+		{133DF9BB-0D29-48BE-BF34-9BA9B3C584EC}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
