@@ -101,14 +101,9 @@ namespace OpenITG_SM_Analyser {
 
             // get step data
             while ((line = reader.ReadLine()) != null) {
-                // end of song?
-                if (line.Contains(';')) {
-                    StepData.Add(stepData);
-                    break;
-                }
 
                 // end of measure?
-                else if (line.Contains(',')) {
+                if (line.Contains(',') || line.Contains(';')) {
                     if (steps >= STEPS_THRESHOLD) {
                         streamMeasures++;
 
@@ -125,7 +120,6 @@ namespace OpenITG_SM_Analyser {
 
                             restMeasures = 0;
                         }
-
                     } else {
                         restMeasures++;
 
@@ -136,6 +130,26 @@ namespace OpenITG_SM_Analyser {
                     }
 
                     steps = 0;
+
+                    // have we reached the end of the song?
+                    if (line.Contains(';')) {
+                        if (streamMeasures > 0) {
+                            stepData += streamMeasures.ToString();
+                        } else if (restMeasures > 0) {
+                            if (restMeasures == 1) {
+                                stepData += "-";
+                            } else if (restMeasures >= 17) {
+                                stepData += " ... ";
+                            } else if (restMeasures >= 5) {
+                                stepData += " .. ";
+                            } else if (restMeasures > 1) {
+                                stepData += " . ";
+                            }
+                        }
+
+                        StepData.Add(stepData);
+                        break;
+                    }
                 }
 
                 // a step found?
