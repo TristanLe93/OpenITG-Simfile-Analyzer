@@ -31,28 +31,29 @@
             // 
             this.btn_openFile.Location = new System.Drawing.Point(12, 12);
             this.btn_openFile.Name = "btn_openFile";
-            this.btn_openFile.Size = new System.Drawing.Size(75, 23);
+            this.btn_openFile.Size = new System.Drawing.Size(121, 23);
             this.btn_openFile.TabIndex = 0;
-            this.btn_openFile.Text = "Open File...";
+            this.btn_openFile.Text = "Open Simfile...";
             this.btn_openFile.UseVisualStyleBackColor = true;
             this.btn_openFile.Click += new System.EventHandler(this.btn_openFile_Click);
             // 
             // txt_stepData
             // 
             this.txt_stepData.Location = new System.Drawing.Point(12, 64);
+            this.txt_stepData.Multiline = true;
             this.txt_stepData.Name = "txt_stepData";
-            this.txt_stepData.Size = new System.Drawing.Size(677, 20);
+            this.txt_stepData.Size = new System.Drawing.Size(677, 131);
             this.txt_stepData.TabIndex = 1;
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(811, 457);
+            this.ClientSize = new System.Drawing.Size(708, 218);
             this.Controls.Add(this.txt_stepData);
             this.Controls.Add(this.btn_openFile);
             this.Name = "Main";
-            this.Text = "Form1";
+            this.Text = "Simfile Analyzer";
             this.Load += new System.EventHandler(this.Main_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

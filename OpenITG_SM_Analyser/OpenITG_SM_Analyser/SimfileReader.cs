@@ -9,35 +9,42 @@ namespace OpenITG_SM_Analyser {
     /// SimfileReader is a text reader that opens .SM files.
     /// </summary>
     public class SimfileReader {
-        // song information
-        public string SongName;
-        public string Difficulty;
-        public string Bpm;
-        public string Author;
-        public string StepData;
-
-        // simfile information tags
-        private const string NAME_TAG = "#TITLE";
-        private const string BPM_TAG = "#DISPLAYBPM";
-        private const string NOTES_TAG = "#NOTES";
-       
-        // current line being read from .sm
-        private string line;
-
-        // no. of steps required to be considered a stream measure
-        private const int STEPS_THRESHOLD = 13;
-        
         private StreamReader reader = null;
 
+        // simfile information tags
+        private const string NAME_TAG = "#TITLE:";
+        private const string BPM_TAG = "#DISPLAYBPM:";
+        private const string NOTES_TAG = "#NOTES:";
+        
+        private const int STEPS_THRESHOLD = 13;
+        private string line;
+
+        // song information
+        public string SongName;
+        public string Bpm;
+        public List<string> Authors = new List<string>();
+        public List<string> StepData = new List<string>();
+        public List<string> Difficulties = new List<string>();
+
+  
         public SimfileReader() {
         }
 
+        /// <summary>
+        /// Opens and reads the .sm file indicated by 'filePath'.
+        /// </summary>
         public void Read(string filePath) {
             reader = new StreamReader(filePath);
 
             FetchSongProperties();
-            FetchChartProperties();
-            FetchStepData();
+
+            // loop through each line until we find a step chart ("#NOTES:" tag)
+            do {
+                if (line.Contains(NOTES_TAG)) {
+                    FetchChartProperties();
+                    FetchStepData();
+                }
+            } while ((line = reader.ReadLine()) != null);
 
             // finish reading
             reader.Close();
@@ -55,8 +62,7 @@ namespace OpenITG_SM_Analyser {
                 } else if (line.Contains(BPM_TAG)) {
                     Bpm = line.Split(':')[1].Trim(';');
                 } else if (line.Contains(NOTES_TAG)) {
-                    // exit
-                    break;
+                    break; // exit
                 }
             }
         }
@@ -67,13 +73,20 @@ namespace OpenITG_SM_Analyser {
         /// </summary>
         private void FetchChartProperties() {
             if (line.Contains(NOTES_TAG)) {
+                string difficulty;
+                string author;
+
                 // skip to line: "dance-single" / "dance-double"
                 reader.ReadLine();
 
-                Author = reader.ReadLine().Trim(':');
+                author = reader.ReadLine().Trim(':');
+                difficulty = reader.ReadLine().Trim(':');
+                difficulty += "(" + reader.ReadLine().Trim(':') + ")";
+
                 reader.ReadLine();
-                Difficulty = reader.ReadLine().Trim(':');
-                reader.ReadLine();
+
+                Authors.Add(author);
+                Difficulties.Add(difficulty);
             }
         }
 
@@ -81,6 +94,7 @@ namespace OpenITG_SM_Analyser {
         /// 
         /// </summary>
         private void FetchStepData() {
+            string stepData = string.Empty;
             int streamMeasures = 0;
             int restMeasures = 0;
             int steps = 0;
@@ -89,6 +103,7 @@ namespace OpenITG_SM_Analyser {
             while ((line = reader.ReadLine()) != null) {
                 // end of song?
                 if (line.Contains(';')) {
+                    StepData.Add(stepData);
                     break;
                 }
 
@@ -99,13 +114,13 @@ namespace OpenITG_SM_Analyser {
 
                         if (restMeasures > 0) {
                             if (restMeasures == 1) {
-                                StepData += "-";
+                                stepData += "-";
                             } else if (restMeasures >= 17) {
-                                StepData += " ... ";
+                                stepData += " ... ";
                             } else if (restMeasures >= 5) {
-                                StepData += " .. ";
+                                stepData += " .. ";
                             } else if (restMeasures > 1) {
-                                StepData += " . ";
+                                stepData += " . ";
                             }
 
                             restMeasures = 0;
@@ -115,7 +130,7 @@ namespace OpenITG_SM_Analyser {
                         restMeasures++;
 
                         if (streamMeasures > 0) {
-                            StepData += streamMeasures.ToString();
+                            stepData += streamMeasures.ToString();
                             streamMeasures = 0;
                         }
                     }
