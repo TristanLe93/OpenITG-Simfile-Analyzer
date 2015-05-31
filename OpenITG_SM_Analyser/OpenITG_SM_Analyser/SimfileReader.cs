@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 using System.IO;
 
 namespace OpenITG_SM_Analyser {
@@ -44,21 +45,28 @@ namespace OpenITG_SM_Analyser {
         /// Opens and reads the .sm file indicated by 'filePath'.
         /// </summary>
         public void Read(string filePath) {
-            reader = new StreamReader(filePath);
-     
-            FetchSongProperties();
+            try {
+                reader = new StreamReader(filePath);
 
-            // loop through each line until we find a step chart ("#NOTES:" tag)
-            do {
-                if (line.Contains(NOTES_TAG)) {
-                    FetchChartProperties();
-                    FetchStepData();
+                FetchSongProperties();
+
+                // loop through each line until we find a step chart ("#NOTES:" tag)
+                do {
+                    if (line.Contains(NOTES_TAG)) {
+                        FetchChartProperties();
+                        FetchStepData();
+                    }
+                } while ((line = reader.ReadLine()) != null);
+
+                // finish reading
+                reader.Close();
+                reader = null;
+            } catch (Exception e) {
+                if (reader != null) {
+                    reader.Close();
+                    reader = null;
                 }
-            } while ((line = reader.ReadLine()) != null);
-
-            // finish reading
-            reader.Close();
-            reader = null;
+            }
         }
 
         /// <summary>
