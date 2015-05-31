@@ -20,7 +20,7 @@ namespace OpenITG_SM_Analyser {
 
         private void btn_openFile_Click(object sender, EventArgs e) {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Simfile (.sm)|*.sm";
+            dialog.Filter = "Simfile |*.sm";
 
             DialogResult result = dialog.ShowDialog();
             

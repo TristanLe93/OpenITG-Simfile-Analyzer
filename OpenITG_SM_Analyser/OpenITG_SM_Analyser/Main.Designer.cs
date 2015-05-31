@@ -42,7 +42,7 @@
             this.txt_stepData.Location = new System.Drawing.Point(12, 64);
             this.txt_stepData.Multiline = true;
             this.txt_stepData.Name = "txt_stepData";
-            this.txt_stepData.Size = new System.Drawing.Size(677, 131);
+            this.txt_stepData.Size = new System.Drawing.Size(312, 131);
             this.txt_stepData.TabIndex = 1;
             // 
             // Main
