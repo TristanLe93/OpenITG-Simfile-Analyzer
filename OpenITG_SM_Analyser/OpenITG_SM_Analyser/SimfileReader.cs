@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 using System.IO;
 
 namespace OpenITG_SM_Analyser {
@@ -12,6 +11,7 @@ namespace OpenITG_SM_Analyser {
     public class SimfileReader {
         // song information
         public string SongName;
+        public string SongArtist;
         public string Bpm;
         public List<string> Authors = new List<string>();
         public List<string> StepData = new List<string>();
@@ -19,7 +19,9 @@ namespace OpenITG_SM_Analyser {
 
         // simfile information tags
         private const string NAME_TAG = "#TITLE:";
+        private const string ARTIST_TAG = "#ARTIST:";
         private const string BPM_TAG = "#DISPLAYBPM:";
+        private const string BPMS_TAG = "#BPMS:";
         private const string NOTES_TAG = "#NOTES:";
 
         /** 
@@ -36,9 +38,18 @@ namespace OpenITG_SM_Analyser {
         private string line;
 
         private StreamReader reader = null;
+        private int notesInMeasure;
         
 
-        public SimfileReader() {
+        /// <summary>
+        /// Readys the SimfileReader. Set streamMode according to stepsInMeasure.
+        /// </summary>
+        public SimfileReader(int streamMode) {
+            if (streamMode == 0) {
+                notesInMeasure = 16;
+            } else if (streamMode == 1) {
+                notesInMeasure = 24;
+            }
         }
 
         /// <summary>
@@ -73,7 +84,7 @@ namespace OpenITG_SM_Analyser {
         /// Returns true or false if the step threshold has been exceeded.
         /// Note: refer to comment above for step threshold explaination.
         /// </summary>
-        private bool IsStepThresholdExceeded(int steps, int notesInMeasure) {
+        private bool IsStepThresholdExceeded(int steps) {
             return (notesInMeasure > 24 && steps > STEPS_THRESHOLD) ||
                 (notesInMeasure >= 16 && notesInMeasure <= 24 && steps > notesInMeasure * STEPS_THRESHOLD_PERCENT);
         }
@@ -86,9 +97,17 @@ namespace OpenITG_SM_Analyser {
             while ((line = reader.ReadLine()) != null) {
                 if (line.Contains(NAME_TAG)) {
                     SongName = line.Split(':')[1].Trim(';');
-                } else if (line.Contains(BPM_TAG)) {
+                } 
+                else if (line.Contains(BPM_TAG)) {
                     Bpm = line.Split(':')[1].Trim(';');
-                } else if (line.Contains(NOTES_TAG)) {
+                } 
+                else if (line.Contains(ARTIST_TAG)) {
+                    SongArtist = line.Split(':')[1].Trim(';');
+                } 
+                else if (line.Contains(BPMS_TAG)) {
+                    Bpm = line.Split(':')[1].Split('=')[1].Trim(';');
+                } 
+                else if (line.Contains(NOTES_TAG)) {
                     break; // exit
                 }
             }
@@ -107,8 +126,8 @@ namespace OpenITG_SM_Analyser {
                 reader.ReadLine();
 
                 author = reader.ReadLine().Trim(':');
-                difficulty = reader.ReadLine().Trim(':');                   // difficulty name
-                difficulty += "(" + reader.ReadLine().Trim(':') + ")";      // difficulty value
+                difficulty = reader.ReadLine().Trim(':').Trim();                    // difficulty name
+                difficulty += " (" + reader.ReadLine().Trim(':').Trim() + ")";      // difficulty value
 
                 reader.ReadLine();
 
@@ -125,18 +144,14 @@ namespace OpenITG_SM_Analyser {
             string stepData = string.Empty;
             int streamMeasures = 0;
             int restMeasures = 0;
-            int notesInMeasure = 0;
             int steps = 0;
 
             // get step data
             while ((line = reader.ReadLine()) != null) {
-                if (!line.Contains(',') && !line.Contains(';')) {
-                    notesInMeasure++;
-                }
 
                 // end of measure?
                 if (line.Contains(',') || line.Contains(';')) {
-                    if (IsStepThresholdExceeded(steps, notesInMeasure)) {
+                    if (IsStepThresholdExceeded(steps)) {
                         streamMeasures++;
 
                         // enter rest measures step data if any
@@ -164,7 +179,6 @@ namespace OpenITG_SM_Analyser {
                     }
 
                     steps = 0;
-                    notesInMeasure = 0;
                 }
 
                 // a step found?
