@@ -13,9 +13,9 @@ namespace OpenITG_SM_Analyser {
         public string SongName;
         public string SongArtist;
         public string Bpm;
-        public List<string> Authors = new List<string>();
-        public List<string> StepData = new List<string>();
-        public List<string> Difficulties = new List<string>();
+
+        public List<StepChart> StepCharts = new List<StepChart>();
+        private StepChart currentChart;
 
         // simfile information tags
         private const string NAME_TAG = "#TITLE:";
@@ -105,7 +105,7 @@ namespace OpenITG_SM_Analyser {
                     SongArtist = line.Split(':')[1].Trim(';');
                 } 
                 else if (line.Contains(BPMS_TAG)) {
-                    Bpm = line.Split(':')[1].Split('=')[1].Trim(';');
+                    Bpm = line.Split(':')[1].Split(',')[0].Split('=')[1].Trim(';');
                 } 
                 else if (line.Contains(NOTES_TAG)) {
                     break; // exit
@@ -119,20 +119,16 @@ namespace OpenITG_SM_Analyser {
         /// </summary>
         private void FetchChartProperties() {
             if (line.Contains(NOTES_TAG)) {
-                string difficulty;
-                string author;
+                currentChart = new StepChart();
 
                 // skip to line: "dance-single" / "dance-double"
                 reader.ReadLine();
 
-                author = reader.ReadLine().Trim(':');
-                difficulty = reader.ReadLine().Trim(':').Trim();                    // difficulty name
-                difficulty += " (" + reader.ReadLine().Trim(':').Trim() + ")";      // difficulty value
+                currentChart.Author = reader.ReadLine().Trim(':').Trim();
+                currentChart.Difficulty = reader.ReadLine().Trim(':').Trim();                    // difficulty name
+                currentChart.Difficulty += " (" + reader.ReadLine().Trim(':').Trim() + ")";      // difficulty value
 
                 reader.ReadLine();
-
-                Authors.Add(author);
-                Difficulties.Add(difficulty);
             }
         }
 
@@ -178,6 +174,8 @@ namespace OpenITG_SM_Analyser {
                         }
                     }
 
+                    currentChart.MeasureDensity.Add(steps);
+                    currentChart.Steps += steps;
                     steps = 0;
                 }
 
@@ -202,7 +200,9 @@ namespace OpenITG_SM_Analyser {
                         }
                     }
 
-                    StepData.Add(stepData);
+                    currentChart.MeasureDensity.Add(steps);
+                    currentChart.StreamBreakdown = stepData;
+                    StepCharts.Add(currentChart);
                     break;
                 }
             }
